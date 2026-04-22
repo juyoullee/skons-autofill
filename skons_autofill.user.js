@@ -21,51 +21,82 @@
     function addShortcutButtons() {
         if (document.getElementById('skons-shortcuts')) return;
 
+        const OUTDOOR = '(C2) 일반 실외 평지 작업(IP/전주/강관주/철탑/전기차 유지보수 등)';
+        const INDOOR  = '(C2) 일반 실내 평지 작업(집/중/통/국사/매장)';
+
         const wrap = document.createElement('div');
         wrap.id = 'skons-shortcuts';
         wrap.style.cssText = `
             position: fixed;
-            bottom: 100px;
+            bottom: 16px;
             right: 16px;
             z-index: 99999;
             display: flex;
             flex-direction: column;
-            gap: 10px;
+            align-items: flex-end;
+            gap: 6px;
         `;
 
-        const OUTDOOR = '(C2) 일반 실외 평지 작업(IP/전주/강관주/철탑/전기차 유지보수 등)';
-        const INDOOR  = '(C2) 일반 실내 평지 작업(집/중/통/국사/매장)';
-
-        const defs = [
-            { label: '📡 기지국(LRRU강관주)', color: '#1565C0', url: BTS_URL, gen: '4G', workType: OUTDOOR },
-            { label: '📡 기지국(LRRU실내)',   color: '#1976D2', url: BTS_URL, gen: '4G', workType: INDOOR  },
-            { label: '📡 기지국(AAU강관주)',   color: '#0D47A1', url: BTS_URL, gen: '5G', workType: OUTDOOR },
-            { label: '📡 기지국(AAU실내)',     color: '#283593', url: BTS_URL, gen: '5G', workType: INDOOR  },
-            { label: '📶 중계기 등록',         color: '#2E7D32', url: RPT_URL, gen: null, workType: null   },
-        ];
-
-        defs.forEach(({ label, color, url, gen, workType }) => {
+        function makeBtn(label, color, onClick) {
             const btn = document.createElement('button');
             btn.textContent = label;
             btn.style.cssText = `
-                padding: 13px 20px;
+                padding: 10px 16px;
                 background: ${color};
                 color: #fff;
                 border: none;
-                border-radius: 26px;
-                font-size: 14px;
+                border-radius: 20px;
+                font-size: 13px;
                 font-weight: bold;
                 box-shadow: 0 4px 12px rgba(0,0,0,0.35);
                 cursor: pointer;
-                min-width: 130px;
                 -webkit-tap-highlight-color: transparent;
+                white-space: nowrap;
             `;
-            btn.addEventListener('click', () => {
+            btn.addEventListener('click', onClick);
+            return btn;
+        }
+
+        function makeNavBtn(label, color, gen, workType) {
+            return makeBtn(label, color, () => {
                 if (gen) sessionStorage.setItem(STORAGE_KEY, JSON.stringify({ gen, workType }));
-                location.href = url;
+                location.href = BTS_URL;
             });
-            wrap.appendChild(btn);
-        });
+        }
+
+        function makeGroup(topLabel, topColor, children) {
+            const group = document.createElement('div');
+            group.style.cssText = 'display: flex; flex-direction: column; align-items: flex-end; gap: 6px;';
+
+            const subWrap = document.createElement('div');
+            subWrap.style.cssText = 'display: none; flex-direction: column; align-items: flex-end; gap: 6px;';
+            children.forEach(c => subWrap.appendChild(c));
+
+            const topBtn = makeBtn(topLabel, topColor, () => {
+                const isOpen = subWrap.style.display !== 'none';
+                subWrap.style.display = isOpen ? 'none' : 'flex';
+            });
+
+            group.appendChild(subWrap);
+            group.appendChild(topBtn);
+            return group;
+        }
+
+        const lrruGroup = makeGroup('📡 LRRU 작업등록', '#1565C0', [
+            makeNavBtn('강관주', '#1976D2', '4G', OUTDOOR),
+            makeNavBtn('실내',   '#42A5F5', '4G', INDOOR),
+        ]);
+
+        const aauGroup = makeGroup('📡 AAU 작업등록', '#0D47A1', [
+            makeNavBtn('강관주', '#283593', '5G', OUTDOOR),
+            makeNavBtn('실내',   '#5C6BC0', '5G', INDOOR),
+        ]);
+
+        const rptBtn = makeBtn('📶 중계기 등록', '#2E7D32', () => { location.href = RPT_URL; });
+
+        wrap.appendChild(rptBtn);
+        wrap.appendChild(aauGroup);
+        wrap.appendChild(lrruGroup);
 
         document.body.appendChild(wrap);
     }

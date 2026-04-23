@@ -60,10 +60,28 @@
         }
 
         function makeNavBtn(label, color, gen, workType) {
-            return makeBtn(label, color, () => {
+            const btn = document.createElement('button');
+            btn.textContent = label;
+            btn.style.cssText = `
+                padding: 7px 14px;
+                background: ${color};
+                color: #fff;
+                border: none;
+                border-radius: 16px;
+                font-size: 12px;
+                font-weight: bold;
+                box-shadow: 0 3px 8px rgba(0,0,0,0.25);
+                cursor: pointer;
+                -webkit-tap-highlight-color: transparent;
+                white-space: nowrap;
+                min-width: 160px;
+                text-align: center;
+            `;
+            btn.addEventListener('click', () => {
                 if (gen) sessionStorage.setItem(STORAGE_KEY, JSON.stringify({ gen, workType }));
                 location.href = BTS_URL;
             });
+            return btn;
         }
 
         function makeGroup(topLabel, topColor, children) {

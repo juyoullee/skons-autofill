@@ -21,10 +21,10 @@
     function addShortcutButtons() {
         if (document.getElementById('skons-shortcuts')) return;
 
-        const OUTDOOR       = '(C2) 일반 실외 평지 작업(IP/전주/강관주/철탑/전기차 유지보수 등)';
-        const INDOOR        = '(C2) 일반 실내 평지 작업(집/중/통/국사/매장)';
-        const ROOFTOP_SAFE  = '(C2) 옥상/옥탑 작업(추락위험 없음)';
-        const ROOFTOP_FALL  = '(C3) 옥상/옥탑 작업(추락위험)';
+        const OUTDOOR      = '(C2) 일반 실외 평지 작업(IP/전주/강관주/철탑/전기차 유지보수 등)';
+        const INDOOR       = '(C2) 일반 실내 평지 작업(집/중/통/국사/매장)';
+        const ROOFTOP_SAFE = '(C2) 옥상/옥탑 작업(추락위험 없음)';
+        const ROOFTOP_FALL = '(C3) 옥상/옥탑 작업(추락위험)';
 
         const wrap = document.createElement('div');
         wrap.id = 'skons-shortcuts';
@@ -36,73 +36,86 @@
             display: flex;
             flex-direction: column;
             align-items: flex-end;
-            gap: 8px;
+            gap: 6px;
         `;
 
-        const btnBase = `
-            border: none;
-            color: #fff;
-            font-weight: bold;
-            cursor: pointer;
-            -webkit-tap-highlight-color: transparent;
-            touch-action: manipulation;
-            user-select: none;
-            -webkit-user-select: none;
-            white-space: nowrap;
-            text-align: center;
+        const base = `
+            border: none; color: #fff; font-weight: bold; cursor: pointer;
+            -webkit-tap-highlight-color: transparent; touch-action: manipulation;
+            user-select: none; -webkit-user-select: none;
+            white-space: nowrap; text-align: center;
         `;
 
-        function makeBtn(label, color, onClick) {
-            const btn = document.createElement('button');
-            btn.textContent = label;
-            btn.style.cssText = btnBase + `
-                padding: 12px 18px;
-                background: ${color};
-                border-radius: 22px;
-                font-size: 14px;
-                box-shadow: 0 4px 12px rgba(0,0,0,0.35);
-                min-width: 160px;
-            `;
-            btn.addEventListener('click', onClick);
-            return btn;
+        // 1단계: 작업등록 (160px)
+        function mkTop(label, color, onClick) {
+            const b = document.createElement('button');
+            b.textContent = label;
+            b.style.cssText = base + `padding:12px 18px; background:${color}; border-radius:22px; font-size:14px; box-shadow:0 4px 12px rgba(0,0,0,0.35); min-width:160px;`;
+            b.addEventListener('click', onClick);
+            return b;
         }
 
-        function makeNavBtn(label, color, gen, workType) {
-            const btn = document.createElement('button');
-            btn.textContent = label;
-            btn.style.cssText = btnBase + `
-                padding: 9px 16px;
-                background: ${color};
-                border-radius: 18px;
-                font-size: 13px;
-                box-shadow: 0 3px 8px rgba(0,0,0,0.25);
-                min-width: 120px;
-            `;
-            btn.addEventListener('click', () => {
+        // 2단계: LRRU / AAU / 중계기 (140px)
+        function mkMid(label, color, onClick) {
+            const b = document.createElement('button');
+            b.textContent = label;
+            b.style.cssText = base + `padding:10px 16px; background:${color}; border-radius:20px; font-size:13px; box-shadow:0 3px 10px rgba(0,0,0,0.3); min-width:140px;`;
+            b.addEventListener('click', onClick);
+            return b;
+        }
+
+        // 3단계: 세부 항목 (120px)
+        function mkSub(label, color, gen, workType) {
+            const b = document.createElement('button');
+            b.textContent = label;
+            b.style.cssText = base + `padding:8px 14px; background:${color}; border-radius:16px; font-size:12px; box-shadow:0 2px 8px rgba(0,0,0,0.22); min-width:120px;`;
+            b.addEventListener('click', () => {
                 if (gen) sessionStorage.setItem(STORAGE_KEY, JSON.stringify({ gen, workType }));
                 location.href = BTS_URL;
             });
-            return btn;
+            return b;
         }
 
-        const subWrap = document.createElement('div');
-        subWrap.style.cssText = 'display: none; flex-direction: column; align-items: flex-end; gap: 8px;';
-        subWrap.appendChild(makeNavBtn('📡 LRRU (C2)강관주',     '#1565C0', '4G', OUTDOOR));
-        subWrap.appendChild(makeNavBtn('📡 LRRU (C2)실내',       '#1976D2', '4G', INDOOR));
-        subWrap.appendChild(makeNavBtn('📡 LRRU (C2)옥상추락없음', '#42A5F5', '4G', ROOFTOP_SAFE));
-        subWrap.appendChild(makeNavBtn('📡 LRRU (C3)옥상추락',   '#0288D1', '4G', ROOFTOP_FALL));
-        subWrap.appendChild(makeNavBtn('📡 AAU (C2)강관주',      '#283593', '5G', OUTDOOR));
-        subWrap.appendChild(makeNavBtn('📡 AAU (C2)실내',        '#3949AB', '5G', INDOOR));
-        subWrap.appendChild(makeNavBtn('📡 AAU (C2)옥상추락없음', '#5C6BC0', '5G', ROOFTOP_SAFE));
-        subWrap.appendChild(makeNavBtn('📡 AAU (C3)옥상추락',    '#7E57C2', '5G', ROOFTOP_FALL));
-        subWrap.appendChild(makeBtn('📶 중계기 등록', '#2E7D32', () => { location.href = RPT_URL; }));
+        function mkPane(items) {
+            const div = document.createElement('div');
+            div.style.cssText = 'display:none; flex-direction:column; align-items:flex-end; gap:6px;';
+            items.forEach(i => div.appendChild(i));
+            return div;
+        }
 
-        const topBtn = makeBtn('📡 작업등록', '#1565C0', () => {
-            const isOpen = subWrap.style.display !== 'none';
-            subWrap.style.display = isOpen ? 'none' : 'flex';
-        });
+        function toggle(pane, others = []) {
+            const opening = pane.style.display === 'none';
+            others.forEach(o => { o.style.display = 'none'; });
+            pane.style.display = opening ? 'flex' : 'none';
+        }
 
-        wrap.appendChild(subWrap);
+        // ── LRRU 세부 항목 ──
+        const lrruPane = mkPane([
+            mkSub('(C2) 강관주',     '#1565C0', '4G', OUTDOOR),
+            mkSub('(C2) 실내',       '#1976D2', '4G', INDOOR),
+            mkSub('(C2) 옥상추락없음', '#42A5F5', '4G', ROOFTOP_SAFE),
+            mkSub('(C3) 옥상추락',   '#0288D1', '4G', ROOFTOP_FALL),
+        ]);
+
+        // ── AAU 세부 항목 ──
+        const aauPane = mkPane([
+            mkSub('(C2) 강관주',     '#283593', '5G', OUTDOOR),
+            mkSub('(C2) 실내',       '#3949AB', '5G', INDOOR),
+            mkSub('(C2) 옥상추락없음', '#5C6BC0', '5G', ROOFTOP_SAFE),
+            mkSub('(C3) 옥상추락',   '#7E57C2', '5G', ROOFTOP_FALL),
+        ]);
+
+        const lrruBtn = mkMid('📡 LRRU', '#1565C0', () => toggle(lrruPane, [aauPane]));
+        const aauBtn  = mkMid('📡 AAU',  '#0D47A1', () => toggle(aauPane, [lrruPane]));
+        const rptBtn  = mkMid('📶 중계기 등록', '#2E7D32', () => { location.href = RPT_URL; });
+
+        // ── 2단계 패널 ──
+        const midPane = mkPane([lrruPane, lrruBtn, aauPane, aauBtn, rptBtn]);
+
+        // ── 1단계: 작업등록 ──
+        const topBtn = mkTop('📡 작업등록', '#1a237e', () => toggle(midPane));
+
+        wrap.appendChild(midPane);
         wrap.appendChild(topBtn);
 
         document.body.appendChild(wrap);

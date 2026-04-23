@@ -1,0 +1,410 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no">
+  <meta name="apple-mobile-web-app-capable" content="yes">
+  <meta name="mobile-web-app-capable" content="yes">
+  <title>SKONS 작업등록</title>
+  <style>
+    * { box-sizing: border-box; margin: 0; padding: 0; }
+    body {
+      font-family: -apple-system, BlinkMacSystemFont, 'Noto Sans KR', Arial, sans-serif;
+      background: #eef1f6;
+      min-height: 100vh;
+      padding: 24px 16px;
+      padding-bottom: calc(32px + env(safe-area-inset-bottom, 0px));
+    }
+    h1 {
+      font-size: 22px;
+      color: #1a237e;
+      text-align: center;
+      margin-bottom: 6px;
+      font-weight: 800;
+    }
+    .subtitle {
+      text-align: center;
+      font-size: 13px;
+      color: #888;
+      margin-bottom: 24px;
+    }
+    .card {
+      background: #fff;
+      border-radius: 18px;
+      padding: 20px;
+      margin-bottom: 16px;
+      box-shadow: 0 2px 12px rgba(0,0,0,0.08);
+    }
+    .card-title {
+      font-size: 11px;
+      font-weight: 700;
+      color: #9e9e9e;
+      letter-spacing: 1.2px;
+      text-transform: uppercase;
+      margin-bottom: 14px;
+    }
+    .btn-list { display: flex; flex-direction: column; gap: 8px; }
+    .btn {
+      display: flex;
+      align-items: center;
+      width: 100%;
+      padding: 16px 18px;
+      border: none;
+      border-radius: 14px;
+      font-size: 16px;
+      font-weight: 700;
+      color: #fff;
+      cursor: pointer;
+      touch-action: manipulation;
+      -webkit-tap-highlight-color: transparent;
+      user-select: none;
+      -webkit-user-select: none;
+      box-shadow: 0 2px 8px rgba(0,0,0,0.2);
+    }
+    .btn:active { filter: brightness(0.9); }
+    .btn-sub {
+      padding: 13px 18px;
+      font-size: 15px;
+      border-radius: 11px;
+      margin-left: 20px;
+    }
+    .sub-wrap { display: none; flex-direction: column; gap: 6px; margin-top: 6px; }
+    .sub-wrap.open { display: flex; }
+    .arrow { margin-left: auto; font-size: 12px; transition: transform 0.2s; display: inline-block; }
+    .arrow.open { transform: rotate(180deg); }
+    .bm-btn {
+      display: block;
+      width: 100%;
+      padding: 16px;
+      background: linear-gradient(135deg, #FF6B35, #e8401a);
+      color: #fff;
+      text-align: center;
+      text-decoration: none;
+      border-radius: 14px;
+      font-size: 16px;
+      font-weight: 700;
+      touch-action: manipulation;
+      -webkit-tap-highlight-color: transparent;
+      user-select: none;
+      border: none;
+      cursor: pointer;
+      box-shadow: 0 3px 12px rgba(255,107,53,0.45);
+    }
+    .bm-btn:active { filter: brightness(0.9); }
+    .guide {
+      margin-top: 14px;
+      padding: 14px;
+      background: #f5f7fa;
+      border-radius: 12px;
+      font-size: 13px;
+      color: #555;
+      line-height: 1.7;
+    }
+    .guide-section { margin-bottom: 12px; }
+    .guide-section:last-child { margin-bottom: 0; }
+    .guide-section b { color: #333; display: block; margin-bottom: 6px; }
+    .step {
+      display: flex;
+      align-items: flex-start;
+      gap: 8px;
+      padding: 3px 0;
+    }
+    .step-num {
+      width: 20px; height: 20px;
+      background: #1565C0;
+      color: #fff;
+      border-radius: 50%;
+      display: flex; align-items: center; justify-content: center;
+      font-size: 11px; font-weight: bold;
+      flex-shrink: 0;
+      margin-top: 2px;
+    }
+    .tag {
+      display: inline-block;
+      background: #e3f2fd;
+      color: #1565C0;
+      border-radius: 6px;
+      padding: 1px 7px;
+      font-size: 12px;
+      font-weight: bold;
+    }
+    .toast {
+      position: fixed;
+      bottom: calc(80px + env(safe-area-inset-bottom, 0px));
+      left: 50%;
+      transform: translateX(-50%);
+      background: rgba(0,0,0,0.78);
+      color: #fff;
+      padding: 12px 22px;
+      border-radius: 22px;
+      font-size: 14px;
+      z-index: 9999;
+      white-space: nowrap;
+      pointer-events: none;
+      opacity: 0;
+      transition: opacity 0.25s;
+    }
+    .toast.show { opacity: 1; }
+  </style>
+</head>
+<body>
+
+<h1>📡 SKONS 작업등록</h1>
+<p class="subtitle">모바일 Chrome 전용 도우미</p>
+
+<!-- ── 바로가기 ── -->
+<div class="card">
+  <div class="card-title">바로가기</div>
+  <div class="btn-list">
+
+    <div>
+      <button class="btn" style="background:#1565C0;" onclick="toggleSub('lrru')">
+        📡 LRRU 작업등록
+        <span class="arrow" id="arrow-lrru">▼</span>
+      </button>
+      <div class="sub-wrap" id="sub-lrru">
+        <button class="btn btn-sub" style="background:#1976D2;" onclick="nav('4G','outdoor')">(C2) 강관주</button>
+        <button class="btn btn-sub" style="background:#42A5F5;" onclick="nav('4G','indoor')">(C2) 실내</button>
+      </div>
+    </div>
+
+    <div>
+      <button class="btn" style="background:#0D47A1;" onclick="toggleSub('aau')">
+        📡 AAU 작업등록
+        <span class="arrow" id="arrow-aau">▼</span>
+      </button>
+      <div class="sub-wrap" id="sub-aau">
+        <button class="btn btn-sub" style="background:#283593;" onclick="nav('5G','outdoor')">(C2) 강관주</button>
+        <button class="btn btn-sub" style="background:#5C6BC0;" onclick="nav('5G','indoor')">(C2) 실내</button>
+      </div>
+    </div>
+
+    <button class="btn" style="background:#2E7D32;" onclick="navRpt()">📶 중계기 등록</button>
+
+  </div>
+</div>
+
+<!-- ── 북마크렛 ── -->
+<div class="card">
+  <div class="card-title">자동입력 북마크렛 <span style="color:#FF6B35">★ 최초 1회 설치 필요</span></div>
+  <a id="bm-link" class="bm-btn" href="#">⚡ 자동입력 북마크렛 (길게 눌러 저장)</a>
+
+  <div class="guide">
+    <div class="guide-section">
+      <b>📌 설치 방법 (최초 1회)</b>
+      <div class="step"><span class="step-num">1</span><span>위 버튼을 <b>길게 누르기</b></span></div>
+      <div class="step"><span class="step-num">2</span><span><span class="tag">링크를 북마크에 추가</span> 선택</span></div>
+      <div class="step"><span class="step-num">3</span><span>이름: <b>SKONS자동입력</b> 으로 저장</span></div>
+    </div>
+    <div class="guide-section">
+      <b>📋 사용 방법 (매번)</b>
+      <div class="step"><span class="step-num">1</span><span>위 <b>바로가기 버튼</b> 탭 → SKONS 등록 페이지로 이동</span></div>
+      <div class="step"><span class="step-num">2</span><span>주소창 탭 → 북마크 목록에서 <span class="tag">SKONS자동입력</span> 탭</span></div>
+      <div class="step"><span class="step-num">3</span><span>자동입력 완료! 🎉</span></div>
+    </div>
+  </div>
+</div>
+
+<div id="toast" class="toast"></div>
+
+<script>
+const OUTDOOR = '(C2) 일반 실외 평지 작업(IP/전주/강관주/철탑/전기차 유지보수 등)';
+const INDOOR  = '(C2) 일반 실내 평지 작업(집/중/통/국사/매장)';
+const BTS_URL = 'https://safe.skons.net/safety-activity/work-registration/bts/';
+const RPT_URL = 'https://safe.skons.net/safety-activity/work-registration/rpt/';
+const WN_KEY  = 'skons-autofill';
+
+function toggleSub(id) {
+  const sub   = document.getElementById('sub-' + id);
+  const arrow = document.getElementById('arrow-' + id);
+  const isOpen = sub.classList.contains('open');
+  document.querySelectorAll('.sub-wrap').forEach(el => el.classList.remove('open'));
+  document.querySelectorAll('.arrow').forEach(el => el.classList.remove('open'));
+  if (!isOpen) { sub.classList.add('open'); arrow.classList.add('open'); }
+}
+
+function nav(gen, type) {
+  const workType = type === 'outdoor' ? OUTDOOR : INDOOR;
+  // window.name persists across same-tab navigation (cross-origin OK)
+  window.name = JSON.stringify({ gen, workType });
+  showToast('SKONS 로딩 후 북마크렛을 실행하세요');
+  setTimeout(() => { location.href = BTS_URL; }, 900);
+}
+
+function navRpt() {
+  window.name = '';
+  location.href = RPT_URL;
+}
+
+function showToast(msg) {
+  const t = document.getElementById('toast');
+  t.textContent = msg;
+  t.classList.add('show');
+  setTimeout(() => t.classList.remove('show'), 2800);
+}
+
+// ── 북마크렛 코드 ──────────────────────────────────────────
+const bmCode = `(function(){
+var E=document.getElementById('skons-bm');if(E){E.remove();return;}
+var OUTDOOR='(C2) 일반 실외 평지 작업(IP/전주/강관주/철탑/전기차 유지보수 등)';
+var INDOOR='(C2) 일반 실내 평지 작업(집/중/통/국사/매장)';
+var BTS='https://safe.skons.net/safety-activity/work-registration/bts/';
+var RPT='https://safe.skons.net/safety-activity/work-registration/rpt/';
+
+function sleep(ms){return new Promise(r=>setTimeout(r,ms));}
+
+function dispatchOpen(el){
+  el.dispatchEvent(new MouseEvent('mousedown',{bubbles:true,cancelable:true}));
+  try{
+    var r=el.getBoundingClientRect(),cx=r.left+r.width/2,cy=r.top+r.height/2;
+    var t=new Touch({identifier:Date.now(),target:el,clientX:cx,clientY:cy,radiusX:1,radiusY:1,rotationAngle:0,force:1});
+    el.dispatchEvent(new TouchEvent('touchstart',{bubbles:true,cancelable:true,touches:[t],targetTouches:[t],changedTouches:[t]}));
+    el.dispatchEvent(new TouchEvent('touchend',{bubbles:true,cancelable:true,touches:[],targetTouches:[],changedTouches:[t]}));
+  }catch(_){}
+  el.click();
+}
+
+function findOptVal(el,txt){
+  var fk=Object.keys(el).find(k=>k.startsWith('__reactFiber'));
+  var f=el[fk];
+  while(f){
+    var ch=f.memoizedProps&&f.memoizedProps.children;
+    if(ch){
+      var arr=(Array.isArray(ch)?ch:[ch]).flat();
+      if(arr.some(c=>c&&c.props&&c.props.value!==undefined)){
+        var m=arr.find(c=>{var l=typeof c.props.children==='string'?c.props.children:String(c.props.children||'');return l.includes(txt);});
+        if(m)return m.props.value;
+      }
+    }
+    f=f.return;
+  }
+  return txt;
+}
+
+function setMui(el,txt){
+  var v=findOptVal(el,txt);
+  var k=Object.keys(el).find(k=>k.startsWith('__reactFiber'));
+  if(!k)return;
+  var f=el[k];
+  while(f){
+    if(f.memoizedProps&&f.memoizedProps.onChange&&f.memoizedProps.value!==undefined){f.memoizedProps.onChange({target:{value:v}});return;}
+    f=f.return;
+  }
+}
+
+async function fillByClick(sel,txt){
+  dispatchOpen(sel);
+  var dl=Date.now()+8000;
+  while(Date.now()<dl){
+    var opts=[...document.querySelectorAll('[role="listbox"] [role="option"],ul[role="listbox"] li')];
+    var m=opts.find(o=>o.textContent&&o.textContent.trim().includes(txt));
+    if(m){
+      m.click();await sleep(150);
+      document.activeElement&&document.activeElement.dispatchEvent(new KeyboardEvent('keydown',{key:'Escape',bubbles:true,cancelable:true}));
+      var bd=document.querySelector('.MuiModal-backdrop,.MuiBackdrop-root');if(bd)bd.click();
+      return;
+    }
+    await sleep(200);
+  }
+}
+
+async function fillAC(lt,ot){
+  var lbl=[...document.querySelectorAll('label')].find(l=>l.textContent.includes(lt));
+  if(!lbl)return;
+  var el=lbl,inp=null;
+  for(var i=0;i<5;i++){el=el.parentElement;inp=el&&el.querySelector('input[role="combobox"]');if(inp)break;}
+  if(!inp)return;
+  inp.focus();inp.click();
+  var ns=Object.getOwnPropertyDescriptor(window.HTMLInputElement.prototype,'value').set;
+  ns.call(inp,ot.substring(0,6));
+  inp.dispatchEvent(new Event('input',{bubbles:true}));
+  await sleep(500);
+  var dl=Date.now()+8000;
+  while(Date.now()<dl){
+    var opts=[...document.querySelectorAll('[role="listbox"] [role="option"],[role="menu"] [role="menuitem"],.MuiAutocomplete-option,.MuiMenuItem-root')];
+    var m=opts.find(o=>o.textContent&&o.textContent.trim().includes(ot));
+    if(m){m.click();return;}
+    await sleep(200);
+  }
+}
+
+var DELAYS={'영역':500,'사업장':500,'팀(SKT)':500,'공사구분':500};
+var LAZY=new Set(['세대별 작업영역']);
+var AC=new Set(['작업 유형']);
+
+async function fillAll(lm){
+  var slow=false;
+  for(var[k,v]of Object.entries(lm)){
+    if(k==='공사구분')slow=true;
+    if(AC.has(k)){try{await fillAC(k,v);}catch(e){}await sleep(DELAYS[k]||(slow?1500:800));continue;}
+    var sels=[...document.querySelectorAll('.MuiSelect-select:not(.Mui-disabled)')];
+    for(var sel of sels){
+      var fc=sel.closest('.MuiFormControl-root');
+      var lt=(fc&&fc.querySelector('label')&&fc.querySelector('label').textContent&&fc.querySelector('label').textContent.trim())||'';
+      if(lt.startsWith(k)){
+        try{if(LAZY.has(k)){await fillByClick(sel,v);}else{setMui(sel,v);}}catch(e){}
+        await sleep(DELAYS[k]||(slow?1500:800));break;
+      }
+    }
+  }
+}
+
+async function autoFill(gen,wt){
+  var lm={
+    '영역':'동부','사업장':'경남Access담당','팀(SKT)':'부산 AI팀',
+    '공사구분':'점검','작업구분1':'점검 작업','작업구분2':'유지보수',
+    '세대별 작업영역':gen,'서비스 영향':'서비스중단없음',
+    '작업목적':'성능개선','재난 안전망':'미포함','작업 유형':wt
+  };
+  await fillAll(lm);
+  await sleep(500);
+  var btn=[...document.querySelectorAll('button')].find(b=>b.textContent.includes('기지국 조회'));
+  if(btn){btn.click();await sleep(1000);}
+  alert('자동입력 완료!\\n확인 후 저장해주세요.');
+}
+
+var W=document.createElement('div');
+W.id='skons-bm';
+W.style.cssText='position:fixed;bottom:calc(16px + env(safe-area-inset-bottom,0px));right:16px;z-index:2147483647;display:flex;flex-direction:column;align-items:flex-end;gap:8px;font-family:-apple-system,Arial,sans-serif;';
+var bc='border:none;color:#fff;font-weight:700;cursor:pointer;touch-action:manipulation;-webkit-tap-highlight-color:transparent;user-select:none;border-radius:14px;font-size:14px;padding:12px 18px;min-width:160px;white-space:nowrap;text-align:center;box-shadow:0 3px 10px rgba(0,0,0,0.3);';
+
+function mb(txt,bg,fn){
+  var b=document.createElement('button');
+  b.textContent=txt;b.style.cssText=bc+'background:'+bg+';';
+  b.addEventListener('click',fn);return b;
+}
+
+var isBTS=location.href.includes('/work-registration/bts/');
+
+// window.name에 저장된 선택값 확인
+var pending=null;
+try{if(window.name)pending=JSON.parse(window.name);}catch(_){}
+
+if(pending&&isBTS){
+  // HTML 바로가기 버튼으로 미리 선택된 경우 → 즉시 자동입력
+  window.name='';
+  autoFill(pending.gen,pending.workType);
+} else if(isBTS){
+  // BTS 등록 페이지: 작업 유형 선택 버튼 표시
+  W.appendChild(mb('LRRU (C2)강관주','#1976D2',function(){W.remove();autoFill('4G',OUTDOOR);}));
+  W.appendChild(mb('LRRU (C2)실내','#42A5F5',function(){W.remove();autoFill('4G',INDOOR);}));
+  W.appendChild(mb('AAU (C2)강관주','#283593',function(){W.remove();autoFill('5G',OUTDOOR);}));
+  W.appendChild(mb('AAU (C2)실내','#5C6BC0',function(){W.remove();autoFill('5G',INDOOR);}));
+  W.appendChild(mb('✕ 닫기','#757575',function(){W.remove();}));
+  document.body.appendChild(W);
+} else {
+  // 다른 SKONS 페이지: 바로가기 버튼 표시
+  W.appendChild(mb('📡 LRRU 강관주','#1976D2',function(){window.name=JSON.stringify({gen:'4G',workType:OUTDOOR});location.href=BTS;}));
+  W.appendChild(mb('📡 LRRU 실내','#42A5F5',function(){window.name=JSON.stringify({gen:'4G',workType:INDOOR});location.href=BTS;}));
+  W.appendChild(mb('📡 AAU 강관주','#283593',function(){window.name=JSON.stringify({gen:'5G',workType:OUTDOOR});location.href=BTS;}));
+  W.appendChild(mb('📡 AAU 실내','#5C6BC0',function(){window.name=JSON.stringify({gen:'5G',workType:INDOOR});location.href=BTS;}));
+  W.appendChild(mb('📶 중계기 등록','#2E7D32',function(){location.href=RPT;}));
+  W.appendChild(mb('✕ 닫기','#757575',function(){W.remove();}));
+  document.body.appendChild(W);
+}
+})()`;
+
+document.getElementById('bm-link').href = 'javascript:' + encodeURIComponent(bmCode);
+</script>
+</body>
+</html>

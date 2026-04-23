@@ -1,8 +1,8 @@
 // ==UserScript==
 // @name         SAFE SKONS 자동입력
 // @namespace    http://tampermonkey.net/
-// @version      2.0
-// @description  기지국/중계기 등록 바로가기 및 자동입력
+// @version      2.1
+// @description  기지국/중계기 등록 바로가기 및 자동입력 (모바일 지원)
 // @author       이주열
 // @match        https://safe.skons.net/*
 // @grant        none
@@ -22,38 +22,44 @@
         if (document.getElementById('skons-shortcuts')) return;
 
         const OUTDOOR = '(C2) 일반 실외 평지 작업(IP/전주/강관주/철탑/전기차 유지보수 등)';
-        const INDOOR  = '(C2) 일반 실내 평지 작업(집/중/통/국사/매장)';
+        const INDOOR = '(C2) 일반 실내 평지 작업(집/중/통/국사/매장)';
 
         const wrap = document.createElement('div');
         wrap.id = 'skons-shortcuts';
         wrap.style.cssText = `
             position: fixed;
-            bottom: 16px;
+            bottom: calc(16px + env(safe-area-inset-bottom, 0px));
             right: 16px;
             z-index: 99999;
             display: flex;
             flex-direction: column;
             align-items: flex-end;
-            gap: 6px;
+            gap: 8px;
+        `;
+
+        const btnBase = `
+            border: none;
+            color: #fff;
+            font-weight: bold;
+            cursor: pointer;
+            -webkit-tap-highlight-color: transparent;
+            touch-action: manipulation;
+            user-select: none;
+            -webkit-user-select: none;
+            white-space: nowrap;
+            text-align: center;
         `;
 
         function makeBtn(label, color, onClick) {
             const btn = document.createElement('button');
             btn.textContent = label;
-            btn.style.cssText = `
-                padding: 10px 16px;
+            btn.style.cssText = btnBase + `
+                padding: 12px 18px;
                 background: ${color};
-                color: #fff;
-                border: none;
-                border-radius: 20px;
-                font-size: 13px;
-                font-weight: bold;
+                border-radius: 22px;
+                font-size: 14px;
                 box-shadow: 0 4px 12px rgba(0,0,0,0.35);
-                cursor: pointer;
-                -webkit-tap-highlight-color: transparent;
-                white-space: nowrap;
                 min-width: 160px;
-                text-align: center;
             `;
             btn.addEventListener('click', onClick);
             return btn;
@@ -62,20 +68,13 @@
         function makeNavBtn(label, color, gen, workType) {
             const btn = document.createElement('button');
             btn.textContent = label;
-            btn.style.cssText = `
-                padding: 7px 14px;
+            btn.style.cssText = btnBase + `
+                padding: 9px 16px;
                 background: ${color};
-                color: #fff;
-                border: none;
-                border-radius: 16px;
-                font-size: 12px;
-                font-weight: bold;
+                border-radius: 18px;
+                font-size: 13px;
                 box-shadow: 0 3px 8px rgba(0,0,0,0.25);
-                cursor: pointer;
-                -webkit-tap-highlight-color: transparent;
-                white-space: nowrap;
                 min-width: 120px;
-                text-align: center;
             `;
             btn.addEventListener('click', () => {
                 if (gen) sessionStorage.setItem(STORAGE_KEY, JSON.stringify({ gen, workType }));
@@ -86,10 +85,10 @@
 
         function makeGroup(topLabel, topColor, children) {
             const group = document.createElement('div');
-            group.style.cssText = 'display: flex; flex-direction: column; align-items: flex-end; gap: 6px;';
+            group.style.cssText = 'display: flex; flex-direction: column; align-items: flex-end; gap: 8px;';
 
             const subWrap = document.createElement('div');
-            subWrap.style.cssText = 'display: none; flex-direction: column; align-items: flex-end; gap: 6px;';
+            subWrap.style.cssText = 'display: none; flex-direction: column; align-items: flex-end; gap: 8px;';
             children.forEach(c => subWrap.appendChild(c));
 
             const topBtn = makeBtn(topLabel, topColor, () => {
@@ -103,13 +102,13 @@
         }
 
         const lrruGroup = makeGroup('📡 LRRU 작업등록', '#1565C0', [
-            makeNavBtn('강관주', '#1976D2', '4G', OUTDOOR),
-            makeNavBtn('실내',   '#42A5F5', '4G', INDOOR),
+            makeNavBtn('(C2)강관주', '#1976D2', '4G', OUTDOOR),
+            makeNavBtn('(C2)실내',   '#42A5F5', '4G', INDOOR),
         ]);
 
         const aauGroup = makeGroup('📡 AAU 작업등록', '#0D47A1', [
-            makeNavBtn('강관주', '#283593', '5G', OUTDOOR),
-            makeNavBtn('실내',   '#5C6BC0', '5G', INDOOR),
+            makeNavBtn('(C2)강관주', '#283593', '5G', OUTDOOR),
+            makeNavBtn('(C2)실내',   '#5C6BC0', '5G', INDOOR),
         ]);
 
         const rptBtn = makeBtn('📶 중계기 등록', '#2E7D32', () => { location.href = RPT_URL; });
@@ -143,14 +142,27 @@
     };
 
     const DELAYS = {
-        '영역':   500,
-        '사업장': 500,
+        '영역':    500,
+        '사업장':  500,
         '팀(SKT)': 500,
         '공사구분': 500,
     };
 
     function sleep(ms) {
         return new Promise(r => setTimeout(r, ms));
+    }
+
+    function dispatchOpen(el) {
+        el.dispatchEvent(new MouseEvent('mousedown', { bubbles: true, cancelable: true }));
+        try {
+            const rect = el.getBoundingClientRect();
+            const cx = rect.left + rect.width / 2;
+            const cy = rect.top + rect.height / 2;
+            const touch = new Touch({ identifier: Date.now(), target: el, clientX: cx, clientY: cy, radiusX: 1, radiusY: 1, rotationAngle: 0, force: 1 });
+            el.dispatchEvent(new TouchEvent('touchstart', { bubbles: true, cancelable: true, touches: [touch], targetTouches: [touch], changedTouches: [touch] }));
+            el.dispatchEvent(new TouchEvent('touchend',   { bubbles: true, cancelable: true, touches: [],       targetTouches: [],       changedTouches: [touch] }));
+        } catch (_) {}
+        el.click();
     }
 
     function findOptionValue(el, labelText) {
@@ -192,7 +204,7 @@
     }
 
     async function fillByClick(sel, labelText, timeout = 8000) {
-        sel.dispatchEvent(new MouseEvent('mousedown', { bubbles: true }));
+        dispatchOpen(sel);
         const deadline = Date.now() + timeout;
         while (Date.now() < deadline) {
             const options = [...document.querySelectorAll('[role="listbox"] [role="option"], ul[role="listbox"] li')];
@@ -292,13 +304,11 @@
         alert('자동입력 완료!\n확인 후 저장해주세요.');
     }
 
-    // 버튼 클릭으로 이동 후 자동입력 대기
     async function checkPendingAutoFill() {
         const stored = sessionStorage.getItem(STORAGE_KEY);
         if (!stored || !isRegistrationPage()) return;
         sessionStorage.removeItem(STORAGE_KEY);
         const { gen, workType } = JSON.parse(stored);
-        // 페이지가 렌더링될 때까지 대기
         const deadline = Date.now() + 10000;
         while (Date.now() < deadline) {
             if (document.querySelectorAll('.MuiSelect-select:not(.Mui-disabled)').length >= 3) break;

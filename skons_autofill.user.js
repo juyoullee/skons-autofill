@@ -74,7 +74,7 @@
                 cursor: pointer;
                 -webkit-tap-highlight-color: transparent;
                 white-space: nowrap;
-                min-width: 160px;
+                min-width: 120px;
                 text-align: center;
             `;
             btn.addEventListener('click', () => {

@@ -21,8 +21,10 @@
     function addShortcutButtons() {
         if (document.getElementById('skons-shortcuts')) return;
 
-        const OUTDOOR = '(C2) 일반 실외 평지 작업(IP/전주/강관주/철탑/전기차 유지보수 등)';
-        const INDOOR = '(C2) 일반 실내 평지 작업(집/중/통/국사/매장)';
+        const OUTDOOR       = '(C2) 일반 실외 평지 작업(IP/전주/강관주/철탑/전기차 유지보수 등)';
+        const INDOOR        = '(C2) 일반 실내 평지 작업(집/중/통/국사/매장)';
+        const ROOFTOP_SAFE  = '(C2) 옥상/옥탑 작업(추락위험 없음)';
+        const ROOFTOP_FALL  = '(C3) 옥상/옥탑 작업(추락위험)';
 
         const wrap = document.createElement('div');
         wrap.id = 'skons-shortcuts';
@@ -85,10 +87,14 @@
 
         const subWrap = document.createElement('div');
         subWrap.style.cssText = 'display: none; flex-direction: column; align-items: flex-end; gap: 8px;';
-        subWrap.appendChild(makeNavBtn('📡 LRRU (C2)강관주', '#1976D2', '4G', OUTDOOR));
-        subWrap.appendChild(makeNavBtn('📡 LRRU (C2)실내',   '#42A5F5', '4G', INDOOR));
-        subWrap.appendChild(makeNavBtn('📡 AAU (C2)강관주',  '#283593', '5G', OUTDOOR));
-        subWrap.appendChild(makeNavBtn('📡 AAU (C2)실내',    '#5C6BC0', '5G', INDOOR));
+        subWrap.appendChild(makeNavBtn('📡 LRRU (C2)강관주',     '#1565C0', '4G', OUTDOOR));
+        subWrap.appendChild(makeNavBtn('📡 LRRU (C2)실내',       '#1976D2', '4G', INDOOR));
+        subWrap.appendChild(makeNavBtn('📡 LRRU (C2)옥상추락없음', '#42A5F5', '4G', ROOFTOP_SAFE));
+        subWrap.appendChild(makeNavBtn('📡 LRRU (C3)옥상추락',   '#0288D1', '4G', ROOFTOP_FALL));
+        subWrap.appendChild(makeNavBtn('📡 AAU (C2)강관주',      '#283593', '5G', OUTDOOR));
+        subWrap.appendChild(makeNavBtn('📡 AAU (C2)실내',        '#3949AB', '5G', INDOOR));
+        subWrap.appendChild(makeNavBtn('📡 AAU (C2)옥상추락없음', '#5C6BC0', '5G', ROOFTOP_SAFE));
+        subWrap.appendChild(makeNavBtn('📡 AAU (C3)옥상추락',    '#7E57C2', '5G', ROOFTOP_FALL));
         subWrap.appendChild(makeBtn('📶 중계기 등록', '#2E7D32', () => { location.href = RPT_URL; }));
 
         const topBtn = makeBtn('📡 작업등록', '#1565C0', () => {

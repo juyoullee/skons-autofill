@@ -83,7 +83,7 @@
             return btn;
         }
 
-const subWrap = document.createElement('div');
+        const subWrap = document.createElement('div');
         subWrap.style.cssText = 'display: none; flex-direction: column; align-items: flex-end; gap: 8px;';
         subWrap.appendChild(makeNavBtn('📡 LRRU (C2)강관주', '#1976D2', '4G', OUTDOOR));
         subWrap.appendChild(makeNavBtn('📡 LRRU (C2)실내',   '#42A5F5', '4G', INDOOR));

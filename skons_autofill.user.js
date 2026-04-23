@@ -83,39 +83,21 @@
             return btn;
         }
 
-        function makeGroup(topLabel, topColor, children) {
-            const group = document.createElement('div');
-            group.style.cssText = 'display: flex; flex-direction: column; align-items: flex-end; gap: 8px;';
+const subWrap = document.createElement('div');
+        subWrap.style.cssText = 'display: none; flex-direction: column; align-items: flex-end; gap: 8px;';
+        subWrap.appendChild(makeNavBtn('📡 LRRU (C2)강관주', '#1976D2', '4G', OUTDOOR));
+        subWrap.appendChild(makeNavBtn('📡 LRRU (C2)실내',   '#42A5F5', '4G', INDOOR));
+        subWrap.appendChild(makeNavBtn('📡 AAU (C2)강관주',  '#283593', '5G', OUTDOOR));
+        subWrap.appendChild(makeNavBtn('📡 AAU (C2)실내',    '#5C6BC0', '5G', INDOOR));
+        subWrap.appendChild(makeBtn('📶 중계기 등록', '#2E7D32', () => { location.href = RPT_URL; }));
 
-            const subWrap = document.createElement('div');
-            subWrap.style.cssText = 'display: none; flex-direction: column; align-items: flex-end; gap: 8px;';
-            children.forEach(c => subWrap.appendChild(c));
+        const topBtn = makeBtn('📡 작업등록', '#1565C0', () => {
+            const isOpen = subWrap.style.display !== 'none';
+            subWrap.style.display = isOpen ? 'none' : 'flex';
+        });
 
-            const topBtn = makeBtn(topLabel, topColor, () => {
-                const isOpen = subWrap.style.display !== 'none';
-                subWrap.style.display = isOpen ? 'none' : 'flex';
-            });
-
-            group.appendChild(subWrap);
-            group.appendChild(topBtn);
-            return group;
-        }
-
-        const lrruGroup = makeGroup('📡 LRRU 작업등록', '#1565C0', [
-            makeNavBtn('(C2)강관주', '#1976D2', '4G', OUTDOOR),
-            makeNavBtn('(C2)실내',   '#42A5F5', '4G', INDOOR),
-        ]);
-
-        const aauGroup = makeGroup('📡 AAU 작업등록', '#0D47A1', [
-            makeNavBtn('(C2)강관주', '#283593', '5G', OUTDOOR),
-            makeNavBtn('(C2)실내',   '#5C6BC0', '5G', INDOOR),
-        ]);
-
-        const rptBtn = makeBtn('📶 중계기 등록', '#2E7D32', () => { location.href = RPT_URL; });
-
-        wrap.appendChild(rptBtn);
-        wrap.appendChild(aauGroup);
-        wrap.appendChild(lrruGroup);
+        wrap.appendChild(subWrap);
+        wrap.appendChild(topBtn);
 
         document.body.appendChild(wrap);
     }

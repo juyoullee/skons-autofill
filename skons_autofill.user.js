@@ -146,7 +146,9 @@
         '영역':    500,
         '사업장':  500,
         '팀(SKT)': 500,
-        '공사구분': 500,
+        '공사구분': 700,
+        '작업구분1': 400,
+        '작업구분2': 400,
     };
 
     function sleep(ms) {
@@ -265,7 +267,7 @@
 
             if (AUTOCOMPLETE_FIELDS.has(key)) {
                 try { await fillAutocomplete(key, value); } catch (e) { console.warn(`[SKONS 자동입력] "${key}" 항목 입력 실패:`, e); }
-                await sleep(DELAYS[key] ?? (slowMode ? 1500 : 800));
+                await sleep(DELAYS[key] ?? (slowMode ? 600 : 400));
                 continue;
             }
 
@@ -282,7 +284,7 @@
                     } catch (e) {
                         console.warn(`[SKONS 자동입력] "${key}" 항목 입력 실패:`, e);
                     }
-                    await sleep(DELAYS[key] ?? (slowMode ? 1500 : 800));
+                    await sleep(DELAYS[key] ?? (slowMode ? 600 : 400));
                     break;
                 }
             }

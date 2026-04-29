@@ -21,101 +21,105 @@
     function addShortcutButtons() {
         if (document.getElementById('skons-shortcuts')) return;
 
-        const OUTDOOR = '(C2) 일반 실외 평지 작업(IP/전주/강관주/철탑/전기차 유지보수 등)';
-        const INDOOR = '(C2) 일반 실내 평지 작업(집/중/통/국사/매장)';
+        const OUTDOOR      = '(C2) 일반 실외 평지 작업(IP/전주/강관주/철탑/전기차 유지보수 등)';
+        const INDOOR       = '(C2) 일반 실내 평지 작업(집/중/통/국사/매장)';
+        const ROOFTOP_SAFE = '(C2) 옥상/옥탑 작업(추락위험 없음)';
+        const ROOFTOP_FALL = '(C3) 옥상/옥탑 작업(추락위험)';
 
         const wrap = document.createElement('div');
         wrap.id = 'skons-shortcuts';
         wrap.style.cssText = `
             position: fixed;
             bottom: calc(16px + env(safe-area-inset-bottom, 0px));
-            right: 16px;
+            left: 16px;
             z-index: 99999;
             display: flex;
             flex-direction: column;
-            align-items: flex-end;
-            gap: 8px;
+            align-items: flex-start;
+            gap: 6px;
         `;
 
-        const btnBase = `
-            border: none;
-            color: #fff;
-            font-weight: bold;
-            cursor: pointer;
-            -webkit-tap-highlight-color: transparent;
-            touch-action: manipulation;
-            user-select: none;
-            -webkit-user-select: none;
-            white-space: nowrap;
-            text-align: center;
+        const base = `
+            border: none; color: #fff; font-weight: bold; cursor: pointer;
+            -webkit-tap-highlight-color: transparent; touch-action: manipulation;
+            user-select: none; -webkit-user-select: none;
+            white-space: nowrap; text-align: center;
         `;
 
-        function makeBtn(label, color, onClick) {
-            const btn = document.createElement('button');
-            btn.textContent = label;
-            btn.style.cssText = btnBase + `
-                padding: 12px 18px;
-                background: ${color};
-                border-radius: 22px;
-                font-size: 14px;
-                box-shadow: 0 4px 12px rgba(0,0,0,0.35);
-                min-width: 160px;
-            `;
-            btn.addEventListener('click', onClick);
-            return btn;
+        // 1단계: 작업등록 (160px)
+        function mkTop(label, color, onClick) {
+            const b = document.createElement('button');
+            b.textContent = label;
+            b.style.cssText = base + `padding:12px 18px; background:${color}; border-radius:22px; font-size:14px; box-shadow:0 4px 12px rgba(0,0,0,0.35); min-width:160px;`;
+            b.addEventListener('click', onClick);
+            return b;
         }
 
-        function makeNavBtn(label, color, gen, workType) {
-            const btn = document.createElement('button');
-            btn.textContent = label;
-            btn.style.cssText = btnBase + `
-                padding: 9px 16px;
-                background: ${color};
-                border-radius: 18px;
-                font-size: 13px;
-                box-shadow: 0 3px 8px rgba(0,0,0,0.25);
-                min-width: 120px;
-            `;
-            btn.addEventListener('click', () => {
+        // 2단계: LRRU / AAU / 중계기 (140px)
+        function mkMid(label, color, onClick) {
+            const b = document.createElement('button');
+            b.textContent = label;
+            b.style.cssText = base + `padding:10px 16px; background:${color}; border-radius:20px; font-size:13px; box-shadow:0 3px 10px rgba(0,0,0,0.3); min-width:140px;`;
+            b.addEventListener('click', onClick);
+            return b;
+        }
+
+        // 3단계: 세부 항목 (120px)
+        function mkSub(label, color, gen, workType) {
+            const b = document.createElement('button');
+            b.textContent = label;
+            b.style.cssText = base + `padding:8px 14px; background:${color}; border-radius:16px; font-size:12px; box-shadow:0 2px 8px rgba(0,0,0,0.22); min-width:120px;`;
+            b.addEventListener('click', () => {
                 if (gen) sessionStorage.setItem(STORAGE_KEY, JSON.stringify({ gen, workType }));
                 location.href = BTS_URL;
             });
-            return btn;
+            return b;
         }
 
-        function makeGroup(topLabel, topColor, children) {
-            const group = document.createElement('div');
-            group.style.cssText = 'display: flex; flex-direction: column; align-items: flex-end; gap: 8px;';
-
-            const subWrap = document.createElement('div');
-            subWrap.style.cssText = 'display: none; flex-direction: column; align-items: flex-end; gap: 8px;';
-            children.forEach(c => subWrap.appendChild(c));
-
-            const topBtn = makeBtn(topLabel, topColor, () => {
-                const isOpen = subWrap.style.display !== 'none';
-                subWrap.style.display = isOpen ? 'none' : 'flex';
-            });
-
-            group.appendChild(subWrap);
-            group.appendChild(topBtn);
-            return group;
+        function mkPane(items) {
+            const div = document.createElement('div');
+            div.style.cssText = 'display:none; flex-direction:column; align-items:flex-start; gap:6px;';
+            items.forEach(i => div.appendChild(i));
+            return div;
         }
 
-        const lrruGroup = makeGroup('📡 LRRU 작업등록', '#1565C0', [
-            makeNavBtn('(C2)강관주', '#1976D2', '4G', OUTDOOR),
-            makeNavBtn('(C2)실내',   '#42A5F5', '4G', INDOOR),
+        function toggle(pane, others = []) {
+            const opening = pane.style.display === 'none';
+            others.forEach(o => { o.style.display = 'none'; });
+            pane.style.display = opening ? 'flex' : 'none';
+        }
+
+        // ── LRRU 세부 항목 ──
+        const lrruPane = mkPane([
+            mkSub('(C2) 강관주',     '#1565C0', '4G', OUTDOOR),
+            mkSub('(C2) 실내',       '#1976D2', '4G', INDOOR),
+            mkSub('(C2) 옥상추락없음', '#42A5F5', '4G', ROOFTOP_SAFE),
+            mkSub('(C3) 옥상추락',   '#0288D1', '4G', ROOFTOP_FALL),
         ]);
 
-        const aauGroup = makeGroup('📡 AAU 작업등록', '#0D47A1', [
-            makeNavBtn('(C2)강관주', '#283593', '5G', OUTDOOR),
-            makeNavBtn('(C2)실내',   '#5C6BC0', '5G', INDOOR),
+        // ── AAU 세부 항목 ──
+        const aauPane = mkPane([
+            mkSub('(C2) 강관주',     '#283593', '5G', OUTDOOR),
+            mkSub('(C2) 실내',       '#3949AB', '5G', INDOOR),
+            mkSub('(C2) 옥상추락없음', '#5C6BC0', '5G', ROOFTOP_SAFE),
+            mkSub('(C3) 옥상추락',   '#7E57C2', '5G', ROOFTOP_FALL),
         ]);
 
-        const rptBtn = makeBtn('📶 중계기 등록', '#2E7D32', () => { location.href = RPT_URL; });
+        const lrruBtn = mkMid('📡 LRRU', '#1565C0', () => toggle(lrruPane, [aauPane]));
+        const aauBtn  = mkMid('📡 AAU',  '#0D47A1', () => toggle(aauPane, [lrruPane]));
+        const rptBtn  = mkMid('📶 중계기 등록', '#2E7D32', () => {
+            sessionStorage.setItem(STORAGE_KEY, JSON.stringify({ gen: null, workType: null }));
+            location.href = RPT_URL;
+        });
 
-        wrap.appendChild(rptBtn);
-        wrap.appendChild(aauGroup);
-        wrap.appendChild(lrruGroup);
+        // ── 2단계 패널 ──
+        const midPane = mkPane([lrruPane, lrruBtn, aauPane, aauBtn, rptBtn]);
+
+        // ── 1단계: 작업등록 ──
+        const topBtn = mkTop('📡 작업등록', '#1a237e', () => toggle(midPane));
+
+        wrap.appendChild(midPane);
+        wrap.appendChild(topBtn);
 
         document.body.appendChild(wrap);
     }
@@ -145,7 +149,9 @@
         '영역':    500,
         '사업장':  500,
         '팀(SKT)': 500,
-        '공사구분': 500,
+        '공사구분': 700,
+        '작업구분1': 400,
+        '작업구분2': 400,
     };
 
     function sleep(ms) {
@@ -264,7 +270,7 @@
 
             if (AUTOCOMPLETE_FIELDS.has(key)) {
                 try { await fillAutocomplete(key, value); } catch (e) { console.warn(`[SKONS 자동입력] "${key}" 항목 입력 실패:`, e); }
-                await sleep(DELAYS[key] ?? (slowMode ? 1500 : 800));
+                await sleep(DELAYS[key] ?? (slowMode ? 600 : 400));
                 continue;
             }
 
@@ -281,7 +287,7 @@
                     } catch (e) {
                         console.warn(`[SKONS 자동입력] "${key}" 항목 입력 실패:`, e);
                     }
-                    await sleep(DELAYS[key] ?? (slowMode ? 1500 : 800));
+                    await sleep(DELAYS[key] ?? (slowMode ? 600 : 400));
                     break;
                 }
             }

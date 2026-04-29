@@ -300,14 +300,13 @@
         if (workType) labelMap['작업 유형'] = workType;
         await fillAllSelects(labelMap);
         await sleep(500);
-        const searchBtn = [...document.querySelectorAll('button')].find(b =>
-            b.textContent.includes('기지국 조회') || b.textContent.includes('중계기 조회')
-        );
+        const searchLabel = location.href.includes('/rpt/') ? '중계기 조회' : '기지국 조회';
+        const searchBtn = [...document.querySelectorAll('button')].find(b => b.textContent.includes(searchLabel));
         if (searchBtn) {
             searchBtn.click();
             await sleep(1000);
         } else {
-            console.warn('[SKONS 자동입력] 조회 버튼을 찾지 못했습니다.');
+            console.warn(`[SKONS 자동입력] "${searchLabel}" 버튼을 찾지 못했습니다.`);
         }
         alert('자동입력 완료!\n확인 후 저장해주세요.');
     }

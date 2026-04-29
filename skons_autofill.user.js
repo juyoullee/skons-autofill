@@ -1,7 +1,7 @@
 // ==UserScript==
 // @name         SAFE SKONS 자동입력
 // @namespace    http://tampermonkey.net/
-// @version      2.1
+// @version      2.4
 // @description  기지국/중계기 등록 바로가기 및 자동입력 (모바일 지원)
 // @author       이주열
 // @match        https://safe.skons.net/*
@@ -16,7 +16,7 @@
     const STORAGE_KEY = 'skons-autofill-gen';
 
     // ─────────────────────────────────────────
-    // 바로가기 버튼 (화면 우하단 고정)
+    // 바로가기 버튼 (화면 좌하단 고정)
     // ─────────────────────────────────────────
     function addShortcutButtons() {
         if (document.getElementById('skons-shortcuts')) return;

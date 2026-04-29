@@ -5,6 +5,8 @@
 // @description  기지국/중계기 등록 바로가기 및 자동입력 (모바일 지원)
 // @author       이주열
 // @match        https://safe.skons.net/*
+// @updateURL    https://raw.githubusercontent.com/juyoullee/skons-autofill/master/skons_autofill.user.js
+// @downloadURL  https://raw.githubusercontent.com/juyoullee/skons-autofill/master/skons_autofill.user.js
 // @grant        none
 // ==/UserScript==
 

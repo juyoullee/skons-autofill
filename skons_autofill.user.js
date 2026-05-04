@@ -1,7 +1,7 @@
 // ==UserScript==
 // @name         SAFE SKONS 자동입력
 // @namespace    http://tampermonkey.net/
-// @version      2.5
+// @version      2.4
 // @description  기지국/중계기 등록 바로가기 및 자동입력 (모바일 지원)
 // @author       이주열
 // @match        https://safe.skons.net/*
@@ -296,39 +296,6 @@
         }
     }
 
-    async function fillRptPopup() {
-        const deadline = Date.now() + 8000;
-        let popup = null;
-        while (Date.now() < deadline) {
-            const dialogs = [...document.querySelectorAll('[role="dialog"]')];
-            popup = dialogs.find(d => d.textContent.includes('중계기 목록'));
-            if (popup) break;
-            await sleep(200);
-        }
-        if (!popup) { console.warn('[SKONS 자동입력] 중계기 목록 팝업을 찾지 못했습니다.'); return; }
-        await sleep(300);
-
-        const POPUP_MAP = [
-            { key: '담당(SKO)', value: '경남Access' },
-            { key: '팀(SKO)',   value: '경남/진주품질개선팀' },
-            { key: '중계기 구', value: '광분산급' },
-        ];
-        for (const { key, value } of POPUP_MAP) {
-            const selects = [...popup.querySelectorAll('.MuiSelect-select:not(.Mui-disabled)')];
-            for (const sel of selects) {
-                const label = sel.closest('.MuiFormControl-root')?.querySelector('label')?.textContent?.trim() || '';
-                if (label.startsWith(key)) {
-                    await fillByClick(sel, value);
-                    await sleep(400);
-                    break;
-                }
-            }
-        }
-        await sleep(300);
-        const searchBtn = [...popup.querySelectorAll('button')].find(b => b.textContent.trim() === '검색');
-        if (searchBtn) searchBtn.click();
-    }
-
     async function autoFill(gen, workType) {
         const labelMap = { ...BASE_LABEL_MAP };
         if (gen) labelMap['세대별 작업영역'] = gen;
@@ -339,11 +306,7 @@
         const searchBtn = [...document.querySelectorAll('button')].find(b => b.textContent.includes(searchLabel));
         if (searchBtn) {
             searchBtn.click();
-            if (location.href.includes('/rpt/')) {
-                await fillRptPopup();
-            } else {
-                await sleep(1000);
-            }
+            await sleep(1000);
         } else {
             console.warn(`[SKONS 자동입력] "${searchLabel}" 버튼을 찾지 못했습니다.`);
         }
